@@ -1,24 +1,35 @@
 require "Vehicles/ISUI/ISVehicleDashboard"
 require "RadioCom/ISRadioAction"
+require "ISUI/ISImage"
 
 local radioIcon = getTexture("Icon_Radio_Speaker");
+local radioBgrnd = getTexture("media/ui/circle.png");
 
 local ISVehicleDashboard_createChildren = ISVehicleDashboard.createChildren;
 function ISVehicleDashboard:createChildren()
     ISVehicleDashboard_createChildren(self);
 
-    local w = radioIcon:getWidthOrig();
+    local w = radioIcon:getWidthOrig(); -- 32
     local h = radioIcon:getHeightOrig();
 
+    local bw = radioBgrnd:getWidthOrig(); -- 32
+    local bh = radioBgrnd:getHeightOrig();
+
+    self.toggleRadioBackground = ISImage:new(0, 0, bw, bh, radioBgrnd);
+    self.toggleRadioBackground:initialise();
+    self.toggleRadioBackground:instantiate();
+    self:addChild(self.toggleRadioBackground);
+
     self.toggleRadioButton = ISImage:new(0, 0, w, h, radioIcon);
-    self.toggleRadioButton.scaledWidth = w/2;
-    self.toggleRadioButton.scaledHeight = h/2;
+    self.toggleRadioButton.scaledWidth = 16;
+    self.toggleRadioButton.scaledHeight = 16;
     self.toggleRadioButton:initialise();
     self.toggleRadioButton.backgroundColor = {r=1, g=1, b=1, a=0.8};
     self.toggleRadioButton:instantiate();
     self.toggleRadioButton.onclick = ISVehicleDashboard.onToggleRadioClicked;
     self.toggleRadioButton.target = self;
 	self.toggleRadioButton.mouseovertext = getText("IGUI_VehiclePartRadio");
+    -- self.toggleRadioButton:setImage(radioBgrnd);
 	self:addChild(self.toggleRadioButton);
 end
 
@@ -31,32 +42,25 @@ function ISVehicleDashboard:setVehicle(vehicle)
 	end
 
     if vehicle then
-        -- Check if we are the driver in a car with a radio
-        local part = self:getRadioPart();
-        if part then
+        local fuelX = self.backgroundTex:getWidth() / 2;
+        local fuelY = self.fuelGauge:getCentreY();
+        local x = fuelX + 40;
+        local y = fuelY + 45;
+
+        -- Check if we are the driver in a car
+        local seat = vehicle:getSeat(playerObj);
+        if seat == 1 then
             -- We are
-            local fuelX = (self.backgroundTex:getWidth()/2)
-            local fuelY = (self.fuelGauge:getCentreY() + 30)
-            self.toggleRadioButton:setX(fuelX + 40);
-            self.toggleRadioButton:setY(fuelY + 15);
+            self.toggleRadioButton:setX(x);
+            self.toggleRadioButton:setY(y);
             self.toggleRadioButton:setVisible(true);
+
+            self.toggleRadioBackground:setX(x-7);
+            self.toggleRadioBackground:setY(y-7);
+            self.toggleRadioBackground:setVisible(true);
 
             -- Set beginning state
             self:updateRadioIconColor();
-            return;
-        else
-            -- We are not, but draw it anyway for the driver in red            
-            local seat = vehicle:getSeat(playerObj)
-            if seat == 1 then
-                local fuelX = (self.backgroundTex:getWidth()/2)
-                local fuelY = (self.fuelGauge:getCentreY() + 30)
-                self.toggleRadioButton:setX(fuelX + 40);
-                self.toggleRadioButton:setY(fuelY + 15);
-                self.toggleRadioButton:setVisible(true);
-
-                -- Set beginning state
-                self:updateRadioIconColor();
-            end
         end
     end
 end
@@ -108,12 +112,14 @@ end
 
 function ISVehicleDashboard:updateRadioIconColor()
     local part = self:getRadioPart();
+	local alpha = self:getAlphaFlick(0.65);
+	local greyBg = {r=0.5, g=0.5, b=0.5, a=alpha};
     if part == nil and self.vehicle:isKeysInIgnition() then
-        self.toggleRadioButton.backgroundColor = {r=1, g=0, b=0, a=0.8};
+        self.toggleRadioButton.backgroundColor = {r=1, g=0, b=0, a=alpha};
     elseif self:isRadioTurnedOn() then
-        self.toggleRadioButton.backgroundColor = {r=0, g=1, b=0, a=0.8};
+        self.toggleRadioButton.backgroundColor = {r=0, g=1, b=0, a=alpha};
     else
-        self.toggleRadioButton.backgroundColor = {r=1, g=1, b=1, a=0.6};
+        self.toggleRadioButton.backgroundColor = greyBg;
     end
 end
 
