@@ -1,4 +1,5 @@
 require "Vehicles/ISUI/ISVehicleDashboard"
+require "RadioCom/ISRadioAction"
 
 local radioIcon = getTexture("Icon_Radio_Speaker");
 
@@ -17,7 +18,7 @@ function ISVehicleDashboard:createChildren()
     self.toggleRadioButton:instantiate();
     self.toggleRadioButton.onclick = ISVehicleDashboard.onToggleRadioClicked;
     self.toggleRadioButton.target = self;
-	self.toggleRadioButton.mouseovertext = "Vehicle Radio";
+	self.toggleRadioButton.mouseovertext = getText("IGUI_VehiclePartRadio");
 	self:addChild(self.toggleRadioButton);
 end
 
@@ -95,6 +96,9 @@ end
 
 function ISVehicleDashboard:isRadioTurnedOn()
     local part = self:getRadioPart();
+    if part == nil then
+        return false;
+    end
     local deviceData = part:getDeviceData();
     if deviceData and part:getInventoryItem() then
         return deviceData:getIsTurnedOn();
