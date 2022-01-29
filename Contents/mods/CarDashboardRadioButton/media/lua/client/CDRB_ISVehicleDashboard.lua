@@ -43,6 +43,19 @@ function ISVehicleDashboard:setVehicle(vehicle)
             -- Set beginning state
             self:updateRadioIconColor();
             return;
+        else
+            -- We are not, but draw it anyway for the driver in red            
+            local seat = vehicle:getSeat(playerObj)
+            if seat == 1 then
+                local fuelX = (self.backgroundTex:getWidth()/2)
+                local fuelY = (self.fuelGauge:getCentreY() + 30)
+                self.toggleRadioButton:setX(fuelX + 40);
+                self.toggleRadioButton:setY(fuelY + 15);
+                self.toggleRadioButton:setVisible(true);
+
+                -- Set beginning state
+                self:updateRadioIconColor();
+            end
         end
     end
 end
@@ -66,42 +79,21 @@ function ISVehicleDashboard:onToggleRadioClicked(button, x, y)
 	if getGameSpeed() == 0 then return; end
 	if getGameSpeed() > 1 then setGameSpeed(1); end
 
-    -- local playerObj = getSpecificPlayer(0);
     local player = getPlayer();
     local playerNum = player:getPlayerNum();
     local radioIso = ISRadioWindow.instancesIso[playerNum];
 
-    if radioIso and radioIso:getIsVisible() then --  radioIso and radioIso.modules[1].enabled 
+    if radioIso and radioIso:getIsVisible() then
         radioIso:close();
     else
         local part = self:getRadioPart();
-        ISVehicleMenu.onSignalDevice(player, part);
+        if part ~= nil then -- if nil, car doesnt have a radio installed
+            ISVehicleMenu.onSignalDevice(player, part);
+        end
     end
-
-
-    -- if isOn then
-    --     isOn = false;
-    --     self.toggleRadioButton.backgroundColor = {r=1, g=1, b=1, a=0.6};
-    --     -- if ISRadioWindow.instances[playerNum] then
-    --     --     ISRadioWindow.instances[playerNum]:close();
-    --     -- end
-    --     if ISRadioWindow.instancesIso[playerNum] then
-    --         ISRadioWindow.instancesIso[playerNum]:close();
-    --     end
-    -- else
-    --     isOn = true;
-    --     self.toggleRadioButton.backgroundColor = {r=0, g=1, b=0, a=0.8};
-    --     ISVehicleMenu.onSignalDevice(player, part);
-    -- end
-    -- return false
 end
 
 function ISVehicleDashboard:isRadioTurnedOn()
-    -- local player = getPlayer();
-    -- local playerNum = player:getPlayerNum();
-    -- local radioIso = ISRadioWindow.instancesIso[playerNum];
-    -- local deviceData = radioIso.deviceData;
-    -- return deviceData:getIsTurnedOn();
     local part = self:getRadioPart();
     local deviceData = part:getDeviceData();
     if deviceData and part:getInventoryItem() then
@@ -111,22 +103,31 @@ function ISVehicleDashboard:isRadioTurnedOn()
 end
 
 function ISVehicleDashboard:updateRadioIconColor()
-    if self:isRadioTurnedOn() then
+    local part = self:getRadioPart();
+    if part == nil and self.vehicle:isKeysInIgnition() then
+        self.toggleRadioButton.backgroundColor = {r=1, g=0, b=0, a=0.8};
+    elseif self:isRadioTurnedOn() then
         self.toggleRadioButton.backgroundColor = {r=0, g=1, b=0, a=0.8};
     else
         self.toggleRadioButton.backgroundColor = {r=1, g=1, b=1, a=0.6};
     end
 end
 
+local ISVehicleDashboard_onClickKeys = ISVehicleDashboard.onClickKeys;
+function ISVehicleDashboard:onClickKeys()
+    ISVehicleDashboard_onClickKeys(self);
+    self:updateRadioIconColor();
+end
+
 local ISRadioAction_performToggleOnOff = ISRadioAction.performToggleOnOff;
 function ISRadioAction:performToggleOnOff()
     ISRadioAction_performToggleOnOff(self);
-    -- if self:isValidToggleOnOff() then
-    --     self.deviceData:setIsTurnedOn( not self.deviceData:getIsTurnedOn() );
-    -- end
+
     local player = getPlayer();
+    local thisPlayerData = getPlayerData(player:getPlayerNum());
+    local dashboard = thisPlayerData.vehicleDashboard;
     local vehicle = player:getVehicle();
-    if vehicle then
-        vehicle:updateRadioIconColor();
+    if dashboard and vehicle then
+        dashboard:updateRadioIconColor();
     end
 end
