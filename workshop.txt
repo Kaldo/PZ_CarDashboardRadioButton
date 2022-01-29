@@ -1,8 +1,7 @@
 version=1
-title=Mod Template
-description=This is an example mod with two worlds.  You can use this as a template for your own map mods.
-description=
-description=The first world has a single 300x300-tile cell.
-description=The second world adds cells all around the first world.
-tags=
-visibility=public
+id=2736059670
+title=Car Dashboard Radio Button
+description=Adds a radio button to the card dashboard element. Clicking on it opens the device panel.
+description=The icon is green if radio is currently on, red if the key is in ignition and the radio is missing from the car, and gray otherwise.
+tags=Build 41;Interface;Vehicles
+visibility=unlisted
