@@ -3,7 +3,7 @@ require "RadioCom/ISRadioAction"
 require "ISUI/ISImage"
 
 local radioIcon = getTexture("Icon_Radio_Speaker");
-local radioBgrnd = getTexture("media/ui/circle.png");
+local radioBgrnd = getTexture("media/ui/background.png");
 
 local ISVehicleDashboard_createChildren = ISVehicleDashboard.createChildren;
 function ISVehicleDashboard:createChildren()
@@ -44,8 +44,8 @@ function ISVehicleDashboard:setVehicle(vehicle)
     if vehicle then
         local fuelX = self.backgroundTex:getWidth() / 2;
         local fuelY = self.fuelGauge:getCentreY();
-        local x = fuelX + 40;
-        local y = fuelY + 45;
+        local x = fuelX + 55;
+        local y = fuelY - 12;
 
         -- Check if we are the driver in a car
         local seat = vehicle:getSeat(playerObj);
@@ -55,7 +55,7 @@ function ISVehicleDashboard:setVehicle(vehicle)
             self.toggleRadioButton:setY(y);
             self.toggleRadioButton:setVisible(true);
 
-            self.toggleRadioBackground:setX(x-7);
+            self.toggleRadioBackground:setX(x-7-3);
             self.toggleRadioBackground:setY(y-7);
             self.toggleRadioBackground:setVisible(true);
 
