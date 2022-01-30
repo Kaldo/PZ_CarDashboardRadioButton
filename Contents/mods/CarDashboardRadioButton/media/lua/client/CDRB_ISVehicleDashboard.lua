@@ -37,6 +37,7 @@ function ISVehicleDashboard:createChildren()
 	self.toggleRadioButton.mouseovertext = getText("IGUI_VehiclePartRadio");
 	self:addChild(self.toggleRadioButton);
 
+    -- Re-add trunkTex to place it on top
     self.trunkTex:close();
     self.trunkTex = nil;
     self.trunkTex = ISImage:new(700,35, self.iconTrunk:getWidthOrig(), self.iconTrunk:getHeightOrig(), self.iconTrunk);
