@@ -3,7 +3,8 @@ require "RadioCom/ISRadioAction"
 require "ISUI/ISImage"
 
 local radioIcon = getTexture("Icon_Radio_Speaker");
-local radioBgrnd = getTexture("media/ui/background.png");
+local backgroundLeft = getTexture("media/ui/background.png");
+local backgroundRight = getTexture("media/ui/background_right.png");
 
 local ISVehicleDashboard_createChildren = ISVehicleDashboard.createChildren;
 function ISVehicleDashboard:createChildren()
@@ -11,11 +12,16 @@ function ISVehicleDashboard:createChildren()
 
     local w = radioIcon:getWidthOrig(); -- 32
     local h = radioIcon:getHeightOrig();
+    local bw = backgroundLeft:getWidthOrig(); -- 32
+    local bh = backgroundLeft:getHeightOrig();
 
-    local bw = radioBgrnd:getWidthOrig(); -- 32
-    local bh = radioBgrnd:getHeightOrig();
+    -- we want to initialize it before other elements because of z-level
+    self.toggleRadioBackgroundRight = ISImage:new(0, 0, bw, bh, backgroundRight);
+    self.toggleRadioBackgroundRight:initialise();
+    self.toggleRadioBackgroundRight:instantiate();
+    self:addChild(self.toggleRadioBackgroundRight);
 
-    self.toggleRadioBackground = ISImage:new(0, 0, bw, bh, radioBgrnd);
+    self.toggleRadioBackground = ISImage:new(0, 0, bw, bh, backgroundLeft);
     self.toggleRadioBackground:initialise();
     self.toggleRadioBackground:instantiate();
     self:addChild(self.toggleRadioBackground);
@@ -29,10 +35,22 @@ function ISVehicleDashboard:createChildren()
     self.toggleRadioButton.onclick = ISVehicleDashboard.onToggleRadioClicked;
     self.toggleRadioButton.target = self;
 	self.toggleRadioButton.mouseovertext = getText("IGUI_VehiclePartRadio");
-    -- self.toggleRadioButton:setImage(radioBgrnd);
 	self:addChild(self.toggleRadioButton);
+
+    self.trunkTex:close();
+    self.trunkTex = nil;
+    self.trunkTex = ISImage:new(700,35, self.iconTrunk:getWidthOrig(), self.iconTrunk:getHeightOrig(), self.iconTrunk);
+    self.trunkTex:initialise();
+    self.trunkTex:instantiate();
+    self.trunkTex.onclick = ISVehicleDashboard.onClickTrunk;
+    self.trunkTex.target = self;
+    self:addChild(self.trunkTex);
 end
 
+local oLightsX = nil;
+local oHeaterX = nil;
+local oTrunkX = nil;
+local ICON_OFFSET = 18;
 local ISVehicleDashboard_setVehicle = ISVehicleDashboard.setVehicle;
 function ISVehicleDashboard:setVehicle(vehicle)
     ISVehicleDashboard_setVehicle(self, vehicle);
@@ -44,7 +62,7 @@ function ISVehicleDashboard:setVehicle(vehicle)
     if vehicle then
         local fuelX = self.backgroundTex:getWidth() / 2;
         local fuelY = self.fuelGauge:getCentreY();
-        local x = fuelX + 55;
+        local x = fuelX + 55 + ICON_OFFSET;
         local y = fuelY - 12;
 
         -- Check if we are the driver in a car
@@ -55,13 +73,26 @@ function ISVehicleDashboard:setVehicle(vehicle)
             self.toggleRadioButton:setY(y);
             self.toggleRadioButton:setVisible(true);
 
-            self.toggleRadioBackground:setX(x-7-3);
+            self.toggleRadioBackground:setX(x-10);
             self.toggleRadioBackground:setY(y-7);
             self.toggleRadioBackground:setVisible(true);
+
+            self.toggleRadioBackgroundRight:setX(x+90);
+            self.toggleRadioBackgroundRight:setY(y-7);
+            self.toggleRadioBackgroundRight:setVisible(true);
 
             -- Set beginning state
             self:updateRadioIconColor();
         end
+
+        if oLightsX == nil then
+            oLightsX = self.lightsTex:getX();
+            oHeaterX = self.heaterTex:getX();
+            oTrunkX = self.trunkTex:getX();
+        end
+        self.lightsTex:setX(oLightsX + ICON_OFFSET);
+        self.heaterTex:setX(oHeaterX + ICON_OFFSET);
+        self.trunkTex:setX(oTrunkX + ICON_OFFSET);
     end
 end
 
