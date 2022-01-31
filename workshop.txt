@@ -1,7 +1,7 @@
 version=1
 id=2736059670
 title=Car Dashboard Radio Button
-description=Adds a radio button to the card dashboard element. Clicking on it opens the device panel.
+description=Adds the radio button to vehicle dashboards. Clicking on it opens the device panel, same as the one from the radial menu.
 description=The icon is green if radio is currently on, red if the key is in ignition and the radio is missing from the car, and gray otherwise.
 tags=Build 41;Interface;Vehicles
 visibility=unlisted
