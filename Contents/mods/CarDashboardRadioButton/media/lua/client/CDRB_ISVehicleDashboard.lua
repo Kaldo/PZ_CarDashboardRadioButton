@@ -3,6 +3,7 @@ require "RadioCom/ISRadioAction"
 require "ISUI/ISImage"
 
 local radioIcon = getTexture("Icon_Radio_Speaker");
+-- local radioIcon = getTexture("media/ui/cassette.png");
 local backgroundLeft = getTexture("media/ui/background.png");
 local backgroundRight = getTexture("media/ui/background_right.png");
 
@@ -34,7 +35,12 @@ function ISVehicleDashboard:createChildren()
     self.toggleRadioButton:instantiate();
     self.toggleRadioButton.onclick = ISVehicleDashboard.onToggleRadioClicked;
     self.toggleRadioButton.target = self;
-	self.toggleRadioButton.mouseovertext = getText("IGUI_VehiclePartRadio");
+	self.toggleRadioButton.mouseovertext = getText("UI_CDRB_OpenRfm");
+    -- TrueMusic
+    if ISTCBoomboxWindow and ISTCBoomboxWindow.activate then
+        self.toggleRadioButton.mouseovertext = getText("UI_CDRB_OpenRfmWithTrueMusic");
+        self.toggleRadioButton.onRightMouseUp = ISVehicleDashboard.onToggleTrueMusicClicked;
+    end
 	self:addChild(self.toggleRadioButton);
 
     -- Re-add trunkTex to place it on top
@@ -46,6 +52,21 @@ function ISVehicleDashboard:createChildren()
     self.trunkTex.onclick = ISVehicleDashboard.onClickTrunk;
     self.trunkTex.target = self;
     self:addChild(self.trunkTex);
+
+    -- Link in to TrueMusic cassette play toggle
+    if ISTCBoomboxAction and ISTCBoomboxAction.performToggleOnOff then
+        local ISVehicleDashboard_performToggleOnOff = ISTCBoomboxAction.performToggleOnOff;
+        function ISTCBoomboxAction:performToggleOnOff()
+            ISVehicleDashboard_performToggleOnOff(self);
+            local player = getPlayer();
+            local thisPlayerData = getPlayerData(player:getPlayerNum());
+            local dashboard = thisPlayerData.vehicleDashboard;
+            local vehicle = player:getVehicle();
+            if dashboard and vehicle then
+                dashboard:updateRadioIconColor();
+            end
+        end
+    end
 end
 
 local oLightsX = nil;
@@ -126,6 +147,25 @@ function ISVehicleDashboard:onToggleRadioClicked(button, x, y)
         local part = self:getRadioPart();
         if part ~= nil then -- if nil, car doesnt have a radio installed
             ISVehicleMenu.onSignalDevice(player, part);
+        end
+    end
+end
+
+function ISVehicleDashboard:onToggleTrueMusicClicked(x, y)
+    if getGameSpeed() == 0 then return; end
+	if getGameSpeed() > 1 then setGameSpeed(1); end
+    local player = getPlayer();
+    local playerNum = player:getPlayerNum();
+
+    if ISTCBoomboxWindow
+            and ISTCBoomboxWindow.instancesIso
+            and ISTCBoomboxWindow.instancesIso[playerNum]
+            and ISTCBoomboxWindow.instancesIso[playerNum]:getIsVisible() then
+        ISTCBoomboxWindow.instancesIso[playerNum]:close();
+    else
+        local part = self.parent:getRadioPart();
+        if part ~= nil then -- if nil, car doesnt have a radio installed
+            ISTCBoomboxWindow.activate(player, part);
         end
     end
 end
