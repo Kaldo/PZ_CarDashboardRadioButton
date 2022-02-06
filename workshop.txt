@@ -1,7 +1,9 @@
 version=1
 id=2736059670
 title=Car Dashboard Radio Button
-description=Adds the radio button to vehicle dashboards. Clicking on it opens the device panel, same as the one from the radial menu.
+description=Adds the radio button to vehicle dashboards. Clicking on it opens the device panel, same as the one from the radial menu.
 description=The icon is green if radio is currently on, red if the key is in ignition and the radio is missing from the car, and gray otherwise.
+description=
+description=Added support for True Music. If you also have that mod installed clicking the radio icon with the right mouse button opens the cassette player instead.
 tags=Build 41;Interface;Vehicles
-visibility=unlisted
+visibility=public
